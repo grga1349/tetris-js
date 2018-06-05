@@ -18,6 +18,7 @@ class Game {
   constructor(grid, piece) {
     this.grid = grid
     this.piece = piece
+    this.score = 0
 
     this.onKeyDown = this.onKeyDown.bind(this)
     this.moveDown = this.moveDown.bind(this)
@@ -44,11 +45,27 @@ class Game {
   }
 
   pushPieceIntoGrid() {
-  
+    let {x, y} = this.piece.getPosition()
+
+    for (let i = 0; i < PIECE_GRID_HEIGHT; i ++) {
+      let mask = this.piece.getRow(i)
+      let row = this.grid.getRow(i + y)
+
+      if (x > 0) {
+        mask = mask >> x
+      } else {
+        mask = mask << (x * -1)
+      }
+
+      this.grid.setRow(i + y, row | mask)
+
+    }
+     
   }
 
   resetPiece() {
     this.piece.resetPosition()
+    this.piece.randomizePiece()
   }
 
   moveLeft() {
@@ -126,7 +143,7 @@ class Game {
 
 const game = new Game(
   new Grid(),
-  new Piece(0, 0, 5, 4, 0, 0, 'blue')
+  new Piece(0, 0, 5, 4, 0, 0, 'black')
 )
 
 game.init()

@@ -15,7 +15,7 @@ function drawBrick(x, y, color) {
   const yReal = y * BRICK_HEIGHT
   
   context.fillStyle = color
-  context.fillRect(xReal, yReal, BRICK_WIDTH, BRICK_HEIGHT)
+  context.fillRect(xReal + 1, yReal + 1, BRICK_WIDTH - 2, BRICK_HEIGHT - 2)
 }
 
 function clearCanvas() {

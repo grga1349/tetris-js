@@ -25,6 +25,15 @@ class Piece {
     }
   }
 
+  getRandomNumber(max) {
+    return Math.floor(Math.random() * Math.floor(max))
+  }
+
+  randomizePiece() {
+    this.type = this.getRandomNumber(7)
+    this.rotation = this.getRandomNumber(4)
+  }
+
   resetPosition() {
     this.xPos = 5
     this.yPos = 4

@@ -9,7 +9,7 @@ class Grid {
     this.x = 0
     this.y = 0
     this.bin = 0x8000
-    this.color = 'red'
+    this.color = 'black'
     this.grid = new Uint16Array(GRID_HEIGHT)
 
     for (let key in this.grid) {
