@@ -9,7 +9,7 @@ class Grid {
     this.x = 0
     this.y = 0
     this.bin = 0x8000
-    this.color = 'black'
+    this.color = 'red'
     this.grid = new Uint16Array(GRID_HEIGHT)
 
     for (let key in this.grid) {
@@ -27,7 +27,7 @@ class Grid {
   }
 
   render() {
-    for(let {x, y, full} of this) {
+    for (let {x, y, full} of this) {
 
       if (full) {
         drawBrick(x, y, this.color)
@@ -37,6 +37,24 @@ class Grid {
 
   getRow(rowIndex) {
     return this.grid[rowIndex]
+  }
+
+  removeFull() {
+    let skip = 0
+
+    for (let i = GRID_HEIGHT - 2; i >= 0; i --) {
+      if (this.grid[i] === 0xFFFF) {
+        skip = skip + 1
+      }
+
+      if ((i - skip) < 0) {
+        this.grid[i] = EMPTY_GRID_PIECE
+
+        continue
+      } 
+
+      this.grid[i] = this.grid[i - skip]
+    }
   }
 
   setRow(rowIndex, payload) {

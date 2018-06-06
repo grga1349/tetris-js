@@ -92,6 +92,7 @@ class Game {
     } else {
       this.pushPieceIntoGrid()
       this.resetPiece()
+      this.grid.removeFull()
     }  
   }
 
@@ -143,7 +144,7 @@ class Game {
 
 const game = new Game(
   new Grid(),
-  new Piece(0, 0, 5, 4, 0, 0, 'black')
+  new Piece(0, 0, 5, 4, 0, 0, 'blue')
 )
 
 game.init()
