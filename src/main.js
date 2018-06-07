@@ -19,6 +19,7 @@ class Game {
     this.grid = grid
     this.piece = piece
     this.score = 0
+    this.scoreElement = document.getElementById('score')
 
     this.onKeyDown = this.onKeyDown.bind(this)
     this.moveDown = this.moveDown.bind(this)
@@ -63,6 +64,12 @@ class Game {
      
   }
 
+  renderScore() {
+    console.log('rendering score', this.scoreElement)
+
+    this.scoreElement.innerHTML = this.score
+  }
+
   resetPiece() {
     this.piece.resetPosition()
     this.piece.randomizePiece()
@@ -92,7 +99,10 @@ class Game {
     } else {
       this.pushPieceIntoGrid()
       this.resetPiece()
-      this.grid.removeFull()
+      if (this.grid.removeFull()) {
+        this.score = this.score + 10
+        this.renderScore()
+      }
     }  
   }
 
@@ -104,10 +114,6 @@ class Game {
     if (!this.noColision(x, y)) {
       this.piece.rotateBack()
     } 
-  }
-
-  changePiece() {
-
   }
 
   onKeyDown(event) {

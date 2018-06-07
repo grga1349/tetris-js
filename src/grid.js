@@ -55,6 +55,8 @@ class Grid {
 
       this.grid[i] = this.grid[i - skip]
     }
+
+    return skip !== 0
   }
 
   setRow(rowIndex, payload) {
@@ -73,7 +75,7 @@ class Grid {
         }
         
         if (this.x === GRID_WIDTH) {
-                                              this.x = 0
+          this.x = 0
           this.y = this.y + 1
           this.bin = 0x8000
         }
