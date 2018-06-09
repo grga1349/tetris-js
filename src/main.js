@@ -1,7 +1,6 @@
-import {Piece} from './piece'
+import {createPiece} from './piece'
 import {Grid} from './grid'
-import {
-  GRID_WIDTH, 
+import { GRID_WIDTH, 
   GRID_HEIGHT, 
   PIECE_GRID_WIDTH, 
   PIECE_GRID_HEIGHT, 
@@ -71,15 +70,15 @@ class Game {
   }
 
   resetPiece() {
-    this.piece.resetPosition()
-    this.piece.randomizePiece()
+    this.piece = this.piece.resetPosition()
+    this.piece = this.piece.randomizePiece()
   }
 
   moveLeft() {
     let {x, y} = this.piece.getPosition()
 
     if (this.noColision(x - 1, y)) {
-      this.piece.moveLeft()
+      this.piece = this.piece.moveLeft()
     }
   }
 
@@ -87,7 +86,7 @@ class Game {
     let {x, y} = this.piece.getPosition()
 
     if (this.noColision(x + 1, y)) {
-      this.piece.moveRight()
+      this.piece = this.piece.moveRight()
     }
   }
 
@@ -95,7 +94,7 @@ class Game {
     let {x, y} = this.piece.getPosition()
 
     if (this.noColision(x, y + 1)) {
-      this.piece.moveDown()
+      this.piece = this.piece.moveDown()
     } else {
       this.pushPieceIntoGrid()
       this.resetPiece()
@@ -109,10 +108,10 @@ class Game {
   rotate() {
     let {x, y} = this.piece.getPosition()
 
-    this.piece.rotate()
+    this.piece = this.piece.rotate()
 
     if (!this.noColision(x, y)) {
-      this.piece.rotateBack()
+      this.piece = this.piece.rotateBack()
     } 
   }
 
@@ -129,7 +128,7 @@ class Game {
         this.rotate()
         break
       case 67:
-        this.piece.changePiece() 
+        this.piece = this.piece.changePiece() 
       default:
         break
     }
@@ -150,7 +149,15 @@ class Game {
 
 const game = new Game(
   new Grid(),
-  new Piece(0, 0, 5, 4, 0, 0, 'blue')
+  createPiece({
+    x: 0, 
+    y: 0, 
+    xPos: 5, 
+    yPos: 4, 
+    rotation: 0, 
+    type: 0, 
+    color: 'blue'
+  })
 )
 
 game.init()

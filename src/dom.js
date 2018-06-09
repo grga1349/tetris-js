@@ -22,6 +22,23 @@ function clearCanvas() {
   context.clearRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
 }
 
+function extendWithRender(pub, priv) {
+
+  return {
+    render() {
+      const {blocks} = pub
+      const {color} = priv
+
+      for(let {x, y, full} of blocks) {
+
+        if (full) {
+          drawBrick(x, y, color)
+        }
+      }
+    }
+  }
+}
+
 export {
   GRID_WIDTH,
   GRID_HEIGHT, 
@@ -32,5 +49,6 @@ export {
   BRICK_WIDTH,
   BRICK_HEIGHT,
   drawBrick,
-  clearCanvas
+  clearCanvas,
+  extendWithRender
 }
