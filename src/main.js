@@ -1,5 +1,5 @@
 import {createPiece} from './piece'
-import {Grid} from './grid'
+import {createGrid} from './grid'
 import { GRID_WIDTH, 
   GRID_HEIGHT, 
   PIECE_GRID_WIDTH, 
@@ -148,7 +148,7 @@ class Game {
 }
 
 const game = new Game(
-  new Grid(),
+  createGrid(),
   createPiece({
     x: 0, 
     y: 0, 

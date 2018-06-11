@@ -1,100 +1,89 @@
-import {GRID_WIDTH, GRID_HEIGHT, drawBrick} from './dom'
+import {GRID_WIDTH, GRID_HEIGHT, extendWithRender} from './dom'
 
 const EMPTY_GRID_PIECE = 0x8001
 const FULL_GRID_PIECE = 0xFFFF
 
 // Grid object
-class Grid {
-  constructor() {
-    this.x = 0
-    this.y = 0
-    this.bin = 0x8000
-    this.color = 'red'
-    this.grid = new Uint16Array(GRID_HEIGHT)
+function createGrid(){
+  const priv = {
+    color: 'red',
+    grid: new Uint16Array(GRID_HEIGHT)
+  }
+  const pub = {
+    getRow(rowIndex) {
+      return priv.grid[rowIndex]
+    },
 
-    for (let key in this.grid) {
-      if (key == GRID_HEIGHT - 1) {
-        this.grid[key] = FULL_GRID_PIECE
-        
-        break
+    removeFull() {
+      let skip = 0
+
+      for (let i = GRID_HEIGHT - 2; i >= 0; i --) {
+        if (priv.grid[i] === 0xFFFF) {
+          skip = skip + 1
+        }
+
+        if ((i - skip) < 0) {
+          priv.grid[i] = EMPTY_GRID_PIECE
+
+          continue
+        } 
+
+        priv.grid[i] = priv.grid[i - skip]
       }
+
+      return skip !== 0
+    },
+
+    setRow(rowIndex, payload) {
+      priv.grid[rowIndex] = payload
+    },
+
+    blocks: {
+      [Symbol.iterator]() {
+        let x = 0
+        let y = 0
+        let bin = 0x8000
       
-      this.grid[key] = EMPTY_GRID_PIECE
-    }
+        return {
+          next: () => {
+            if (x === GRID_WIDTH && y === GRID_HEIGHT) {
+              return {done: true}
+            }
+            
+            if (x === GRID_WIDTH) {
+              x = 0
+              y = y + 1
+              bin = 0x8000
+            }
 
-    this.render = this.render.bind(this)
-    this[Symbol.iterator] = this[Symbol.iterator].bind(this)
-  }
+            let tempX = x
+            let tempY = y
+            let tempBin = bin
+            let row = priv.grid[y]
 
-  render() {
-    for (let {x, y, full} of this) {
-
-      if (full) {
-        drawBrick(x, y, this.color)
-      }
-    }
-  }
-
-  getRow(rowIndex) {
-    return this.grid[rowIndex]
-  }
-
-  removeFull() {
-    let skip = 0
-
-    for (let i = GRID_HEIGHT - 2; i >= 0; i --) {
-      if (this.grid[i] === 0xFFFF) {
-        skip = skip + 1
-      }
-
-      if ((i - skip) < 0) {
-        this.grid[i] = EMPTY_GRID_PIECE
-
-        continue
-      } 
-
-      this.grid[i] = this.grid[i - skip]
-    }
-
-    return skip !== 0
-  }
-
-  setRow(rowIndex, payload) {
-    this.grid[rowIndex] = payload
-  }
-
-  [Symbol.iterator]() {
-    this.x = 0
-    this.y = 0
-    this.bin = 0x8000
-  
-    return {
-      next: () => {
-        if (this.x === GRID_WIDTH && this.y === GRID_HEIGHT) {
-          return {done: true}
+            x = x + 1
+            bin = bin >> 1
+            
+            let full = tempBin & row
+            
+            return {value: {x: tempX, y: tempY, full}, done: false}
+          }
         }
-        
-        if (this.x === GRID_WIDTH) {
-          this.x = 0
-          this.y = this.y + 1
-          this.bin = 0x8000
-        }
-
-        let x = this.x
-        let y = this.y
-        let bin = this.bin
-
-        let row = this.grid[y]
-
-        this.x = this.x + 1
-        this.bin = this.bin >> 1
-        
-        let full = bin & row
-        
-        return {value: {x, y, full}, done: false}
       }
     }
   }
+
+  for (let key in priv.grid) {
+    if (key == GRID_HEIGHT - 1) {
+      priv.grid[key] = FULL_GRID_PIECE
+      
+      break
+    }
+    
+    priv.grid[key] = EMPTY_GRID_PIECE
+  }
+
+  return {...pub, ...extendWithRender(pub, priv)}
 }
 
-export {Grid}
+export {createGrid}
