@@ -13,141 +13,141 @@ import { GRID_WIDTH,
 } from './dom'
 
 // Game object
-class Game {
-  constructor(grid, piece) {
-    this.grid = grid
-    this.piece = piece
-    this.score = 0
-    this.scoreElement = document.getElementById('score')
-
-    this.onKeyDown = this.onKeyDown.bind(this)
-    this.moveDown = this.moveDown.bind(this)
-    this.renderGame = this.renderGame.bind(this)
+function createGame(grid, piece) {
+  const priv = {
+    grid: grid,
+    piece: piece,
+    score: 0,
+    scoreElement: document.getElementById('score')
   }
 
-  noColision(nextXPos, nextYPos) {
-    for (let i = 0; i < PIECE_GRID_HEIGHT; i ++) {
-      let mask = this.piece.getRow(i)
-      let row = this.grid.getRow(i + nextYPos)
+  const pub = {
+    noColision(nextXPos, nextYPos) {
+      for (let i = 0; i < PIECE_GRID_HEIGHT; i ++) {
+        let mask = priv.piece.getRow(i)
+        let row = priv.grid.getRow(i + nextYPos)
 
-      if (nextXPos > 0) {
-        mask = mask >> nextXPos
+        if (nextXPos > 0) {
+          mask = mask >> nextXPos
+        } else {
+          mask = mask << (nextXPos * -1)
+        }
+
+        if(row & mask) {
+          return false
+        }
+      }
+
+      return true
+    },
+
+    pushPieceIntoGrid() {
+      let {x, y} = priv.piece.getPosition()
+
+      for (let i = 0; i < PIECE_GRID_HEIGHT; i ++) {
+        let mask = priv.piece.getRow(i)
+        let row = priv.grid.getRow(i + y)
+
+        if (x > 0) {
+          mask = mask >> x
+        } else {
+          mask = mask << (x * -1)
+        }
+
+        priv.grid.setRow(i + y, row | mask)
+
+      }
+       
+    },
+
+    renderScore() {
+      console.log('rendering score', priv.scoreElement)
+
+      priv.scoreElement.innerHTML = priv.score
+    },
+
+    resetPiece() {
+      priv.piece = priv.piece.resetPosition()
+      priv.piece = priv.piece.randomizePiece()
+    },
+
+    moveLeft() {
+      let {x, y} = priv.piece.getPosition()
+
+      if (pub.noColision(x - 1, y)) {
+        priv.piece = priv.piece.moveLeft()
+      }
+    },
+
+    moveRight() {
+      let {x, y} = priv.piece.getPosition()
+
+      if (pub.noColision(x + 1, y)) {
+        priv.piece = priv.piece.moveRight()
+      }
+    },
+
+    moveDown() {
+      let {x, y} = priv.piece.getPosition()
+
+      if (pub.noColision(x, y + 1)) {
+        priv.piece = priv.piece.moveDown()
       } else {
-        mask = mask << (nextXPos * -1)
+        pub.pushPieceIntoGrid()
+        pub.resetPiece()
+        if (priv.grid.removeFull()) {
+          priv.score = priv.score + 10
+          pub.renderScore()
+        }
+      }  
+    },
+
+    rotate() {
+      let {x, y} = priv.piece.getPosition()
+
+      priv.piece = priv.piece.rotate()
+
+      if (!pub.noColision(x, y)) {
+        priv.piece = priv.piece.rotateBack()
+      } 
+    },
+
+    onKeyDown(event) {
+      // console.log(event.keyCode)
+      switch (event.keyCode) {
+        case 39:
+          pub.moveRight()
+          break
+        case 37:
+          pub.moveLeft()
+          break
+        case 32:
+          pub.rotate()
+          break
+        case 67:
+          priv.piece = priv.piece.changePiece() 
+        default:
+          break
       }
+    },
 
-      if(row & mask) {
-        return false
-      }
-    }
+    renderGame() {
+      clearCanvas()
+      priv.grid.render()
+      priv.piece.render()
+    },
 
-    return true
+    init() {
+      document.addEventListener('keydown', pub.onKeyDown)
+      setInterval(pub.renderGame, 16)
+      setInterval(pub.moveDown, 300)
+    },
   }
 
-  pushPieceIntoGrid() {
-    let {x, y} = this.piece.getPosition()
-
-    for (let i = 0; i < PIECE_GRID_HEIGHT; i ++) {
-      let mask = this.piece.getRow(i)
-      let row = this.grid.getRow(i + y)
-
-      if (x > 0) {
-        mask = mask >> x
-      } else {
-        mask = mask << (x * -1)
-      }
-
-      this.grid.setRow(i + y, row | mask)
-
-    }
-     
-  }
-
-  renderScore() {
-    console.log('rendering score', this.scoreElement)
-
-    this.scoreElement.innerHTML = this.score
-  }
-
-  resetPiece() {
-    this.piece = this.piece.resetPosition()
-    this.piece = this.piece.randomizePiece()
-  }
-
-  moveLeft() {
-    let {x, y} = this.piece.getPosition()
-
-    if (this.noColision(x - 1, y)) {
-      this.piece = this.piece.moveLeft()
-    }
-  }
-
-  moveRight() {
-    let {x, y} = this.piece.getPosition()
-
-    if (this.noColision(x + 1, y)) {
-      this.piece = this.piece.moveRight()
-    }
-  }
-
-  moveDown() {
-    let {x, y} = this.piece.getPosition()
-
-    if (this.noColision(x, y + 1)) {
-      this.piece = this.piece.moveDown()
-    } else {
-      this.pushPieceIntoGrid()
-      this.resetPiece()
-      if (this.grid.removeFull()) {
-        this.score = this.score + 10
-        this.renderScore()
-      }
-    }  
-  }
-
-  rotate() {
-    let {x, y} = this.piece.getPosition()
-
-    this.piece = this.piece.rotate()
-
-    if (!this.noColision(x, y)) {
-      this.piece = this.piece.rotateBack()
-    } 
-  }
-
-  onKeyDown(event) {
-    // console.log(event.keyCode)
-    switch (event.keyCode) {
-      case 39:
-        this.moveRight()
-        break
-      case 37:
-        this.moveLeft()
-        break
-      case 32:
-        this.rotate()
-        break
-      case 67:
-        this.piece = this.piece.changePiece() 
-      default:
-        break
-    }
-  }
-
-  renderGame() {
-    clearCanvas()
-    this.grid.render()
-    this.piece.render()
-  }
-
-  init() {
-    document.addEventListener('keydown', this.onKeyDown)
-    setInterval(this.renderGame, 16)
-    setInterval(this.moveDown, 300)
-  }
+  return pub
 }
 
-const game = new Game(
+const game = createGame(
   createGrid(),
   createPiece({
     x: 0, 
